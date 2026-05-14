@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:43:05 by kmurray           #+#    #+#             */
-/*   Updated: 2026/05/14 21:37:18 by marvin           ###   ########.fr       */
+/*   Updated: 2026/05/14 22:02:12 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,31 +118,35 @@
 // index to the rank of the number.
 
 
-
-#include <limits.h>
-
-static int find_min_unindexed_value(t_list *node)
+int find_smallest_rank(t_stacks *stacks)
 {
-    int min = INT_MAX;
+    t_list  *node;
+    int     value;
+    int     found;
 
+    node = stacks->a.top;
+    found = 0;
     while (node)
     {
-        if (get_content(node)->index == -1
-            && get_content(node)->value < min)
-            min = get_content(node)->value;
+        if (get_content(node)->index == -1)
+        {
+            if (!found || get_content(node)->value < value)
+            {
+                value = get_content(node)->value;
+                found = 1;
+            }
+        }
         node = node->next;
     }
-    return (min);
+    return (value);
 }
 
-void rank_the_numbers(t_stacks *stacks)
+void    rank_the_numbers(t_stacks *stacks)
 {
-    int n;
-    int i;
-    int min;
-    t_list *node;
+    t_list  *node;
+    int     i;
+    int     value;
 
-    n = ft_lstsize(stacks->a.top);
     node = stacks->a.top;
     while (node)
     {
@@ -150,20 +154,20 @@ void rank_the_numbers(t_stacks *stacks)
         node = node->next;
     }
     i = 0;
-    while (i < n)
+    while (i < ft_lstsize(stacks->a.top))
     {
-        min = find_min_unindexed_value(stacks->a.top);
+        value = find_smallest_rank(stacks);
         node = stacks->a.top;
         while (node)
         {
-            if (get_content(node)->value == min && get_content(node)->index == -1)
+            if (get_content(node)->value == value
+                && get_content(node)->index == -1)
                 get_content(node)->index = i;
             node = node->next;
         }
         i++;
     }
 }
-
 
 // here we count de binary bits there are in the highst ranked number
 // so for example a list of 500 numbers will have 9 bits.
