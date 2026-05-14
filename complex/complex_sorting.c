@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   complex_sorting.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alkhan <alkhan@student.42.fr>              +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 14:43:05 by kmurray           #+#    #+#             */
-/*   Updated: 2026/05/14 18:22:11 by alkhan           ###   ########.fr       */
+/*   Updated: 2026/05/14 21:37:18 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,44 +119,51 @@
 
 
 
-int	find_smallest_rank(t_stacks *stacks, int rank)
-{
-	t_list	*node;
-	int		value;
+#include <limits.h>
 
-	node = stacks->a.top;
-	value = get_n(node, 0)->value;
-	while (node)
-	{
-		if (get_content(node)->value < value
-			&& !(get_content(node)->index < rank))
-			value = get_n(node, 0)->value;
-		node = node->next;
-	}
-	return (value);
-}
-void	rank_the_numbers(t_stacks *stacks)
+static int find_min_unindexed_value(t_list *node)
 {
-	int		i;
-	int		value;
-	t_list	*node;
+    int min = INT_MAX;
 
-	node = stacks->a.top;
-	get_n(node, 0)->index = ft_lstsize(stacks->a.top);
-	i = 0;
-	while (i < ft_lstsize(stacks->a.top))
-	{
-		value = find_smallest_rank(stacks, i);
-		while (node)
-		{
-			if (get_n(node, 0)->value == value)
-				get_content(node)->index = i;
-			node = node->next;
-		}
-		i++;
-		node = stacks->a.top;
-	}
+    while (node)
+    {
+        if (get_content(node)->index == -1
+            && get_content(node)->value < min)
+            min = get_content(node)->value;
+        node = node->next;
+    }
+    return (min);
 }
+
+void rank_the_numbers(t_stacks *stacks)
+{
+    int n;
+    int i;
+    int min;
+    t_list *node;
+
+    n = ft_lstsize(stacks->a.top);
+    node = stacks->a.top;
+    while (node)
+    {
+        get_content(node)->index = -1;
+        node = node->next;
+    }
+    i = 0;
+    while (i < n)
+    {
+        min = find_min_unindexed_value(stacks->a.top);
+        node = stacks->a.top;
+        while (node)
+        {
+            if (get_content(node)->value == min && get_content(node)->index == -1)
+                get_content(node)->index = i;
+            node = node->next;
+        }
+        i++;
+    }
+}
+
 
 // here we count de binary bits there are in the highst ranked number
 // so for example a list of 500 numbers will have 9 bits.
@@ -165,8 +172,8 @@ int	counting_bits(t_stacks *stacks)
 	int	bits;
 	int	i;
 
-	i = 0;
-	bits = ft_lstsize(stacks->a.top);
+	i = 1;
+	bits = ft_lstsize(stacks->a.top)-1;
 	while (bits >> 1 != 0)
 	{
 		i++;
